@@ -64,3 +64,22 @@ def clean_free_text(data, col):
     data[col] = data[col].str.strip()
     data.loc[data[col] == '', col] = np.nan
     return(data[col])
+
+
+def clean_fitness_cols(df, col_exclude, val_lookup, colname_new):
+    """
+    Rename fitness column names and convert column to boolean.
+    """
+    ## Get column containing val_lookup 
+    col_lookup = df.drop(col_exclude, axis=1).columns[
+        df.drop(col_exclude, axis=1).isin([val_lookup]).any()
+    ].item()
+    
+    ## Rename above column to column_new
+    df_return = df.rename(columns={col_lookup:colname_new})
+    
+    df_return.loc[df[col_lookup] == val_lookup, colname_new] = 1
+    df_return.loc[df[col_lookup] != val_lookup, colname_new] = 0
+    df_return[colname_new] = df_return[colname_new].astype('float')
+    
+    return df_return
